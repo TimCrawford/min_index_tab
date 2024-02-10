@@ -1,0 +1,28 @@
+var express = require("express");
+var app = express();
+const PORT = 8000;
+app.listen(PORT, () => {
+ console.log("Server running on PORT:",PORT);
+});
+
+app.get("/tc_encode", (req, res,next) => {
+    var  tc = "";
+    var msg = "";
+    var time_hop = req.query.time_hop? req.query.time_hop : 256;
+    if(!req.query.tabcode) {res.send("No tabcode present!!");}
+    else {
+      tc = req.query.tabcode;
+      var debug = false;
+      var codestring = "";
+
+      const parser = require("./exports_parser.js");
+      var tab_json = parser.parse(tc, debug);
+
+      const encode = require("./exports_label_harm_windows");
+      var starti = encode.guessMetre(tab_json,false);
+      codestring = encode.encodeTopNotes(tab_json, time_hop, starti, true);
+
+      res.send(codestring);
+    }
+});
+
